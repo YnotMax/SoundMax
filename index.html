@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SoundMax - Soundboard profissional para gamers e streamers. Toque sons no mic em tempo real.">
+    <title>SoundMax — Premium Soundboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- ═══ SIDEBAR ═══ -->
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                        </svg>
+                    </div>
+                    <div class="logo-text">
+                        <h1>SoundMax</h1>
+                        <span class="logo-subtitle">Premium Soundboard</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Audio Engine Controls -->
+            <div class="sidebar-section">
+                <div class="section-label">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+                    Microfone
+                </div>
+                <select id="micInput" class="device-select">
+                    <!-- populated by js -->
+                </select>
+                <div class="level-meter" title="Volume do Microfone capturado pelo app">
+                    <div class="level-fill" id="micLevel"></div>
+                </div>
+                <div class="device-hint">Apenas sua voz</div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="section-label">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l3-9 5 18 3-9h5"/></svg>
+                    SAÍDA (VB-CABLE)
+                </div>
+                <select id="audioOutput" class="device-select">
+                    <!-- populated by js -->
+                </select>
+                <div class="level-meter" title="Volume Final (Voz + Áudios) enviado para a Saída">
+                    <div class="level-fill" id="outLevel"></div>
+                </div>
+                <div class="device-hint">Selecione VB-Cable Input para enviar pelo mic</div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="engine-control">
+                    <div id="engineIndicator" class="engine-indicator" title="Engine parada"></div>
+                    <button id="engineToggle" class="btn-engine">▶ Iniciar</button>
+                </div>
+                <div id="loadingStatus" class="loading-status hidden"></div>
+            </div>
+
+            <!-- Master Volume -->
+            <div class="sidebar-section">
+                <div class="section-label">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                    Volume Master
+                </div>
+                <div class="volume-control">
+                    <input type="range" id="masterVolume" class="volume-slider" min="0" max="100" value="80">
+                    <span id="masterVolumeLabel" class="volume-label">80%</span>
+                </div>
+            </div>
+
+            <!-- Categories -->
+            <div class="sidebar-section">
+                <div class="section-label">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                    Categorias
+                    <button id="addCategoryBtn" class="btn-icon-sm" title="Nova categoria">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </button>
+                </div>
+                <nav id="categoryList" class="category-list">
+                    <!-- Categories populated by JS -->
+                </nav>
+            </div>
+
+            <!-- Stats -->
+            <div class="sidebar-footer">
+                <div class="stats">
+                    <div class="stat-item">
+                        <span class="stat-value" id="totalSounds">0</span>
+                        <span class="stat-label">Sons</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="totalCategories">0</span>
+                        <span class="stat-label">Categorias</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ═══ MAIN CONTENT ═══ -->
+        <main id="mainContent" class="main-content">
+            <!-- Top Bar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button id="sidebarToggle" class="btn-icon" title="Toggle sidebar">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </button>
+                    <div class="search-container">
+                        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <input type="text" id="searchInput" class="search-input" placeholder="Buscar sons..." autocomplete="off">
+                        <kbd class="search-kbd">Ctrl+K</kbd>
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <button id="tutorialBtn" class="btn-icon" title="Como Usar o App" style="margin-right: 8px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    </button>
+                    <button id="stopAllBtn" class="btn-stop-all" title="Parar tudo (Esc)">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"></rect></svg>
+                        <span>Stop All</span>
+                    </button>
+                    <button id="refreshBtn" class="btn-icon" title="Atualizar sons da pasta interna" style="margin-right: 8px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                    </button>
+                    <button id="addSoundBtn" class="btn-primary" title="Adicionar sons">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        <span>Adicionar</span>
+                    </button>
+                    <input type="file" id="fileInput" accept="audio/*" multiple hidden>
+                </div>
+            </header>
+
+            <!-- Active Category Header -->
+            <div class="content-header">
+                <h2 id="activeCategoryTitle" class="category-title">Todos os Sons</h2>
+                <div class="view-controls">
+                    <button id="viewGrid" class="btn-view active" title="Grid view">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    </button>
+                    <button id="viewList" class="btn-view" title="List view">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sound Grid / Drop Zone -->
+            <div id="dropZone" class="drop-zone">
+                <div id="soundGrid" class="sound-grid">
+                    <!-- Sound cards populated by JS -->
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="empty-state">
+                    <div class="empty-icon">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 18V5l12-2v13"></path>
+                            <circle cx="6" cy="18" r="3"></circle>
+                            <circle cx="18" cy="16" r="3"></circle>
+                        </svg>
+                    </div>
+                    <h3>Nenhum som adicionado</h3>
+                    <p>Arraste arquivos de áudio aqui ou clique em <strong>Adicionar</strong></p>
+                    <p class="empty-formats">MP3, WAV, OGG, FLAC, AAC, M4A, WEBM</p>
+                </div>
+
+                <!-- Drop Overlay -->
+                <div id="dropOverlay" class="drop-overlay">
+                    <div class="drop-overlay-content">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        <span>Solte os arquivos aqui!</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Now Playing Bar -->
+            <div id="nowPlaying" class="now-playing hidden">
+                <div class="now-playing-info">
+                    <div class="now-playing-indicator">
+                        <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
+                    </div>
+                    <span id="nowPlayingName" class="now-playing-name">—</span>
+                </div>
+                <div class="now-playing-controls">
+                    <div id="nowPlayingProgress" class="progress-bar">
+                        <div id="nowPlayingProgressFill" class="progress-fill"></div>
+                    </div>
+                    <span id="nowPlayingTime" class="now-playing-time">0:00 / 0:00</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ═══ MODALS ═══ -->
+
+    <!-- Sound Settings Modal -->
+    <div id="soundModal" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Configurações do Som</h3>
+                <button class="btn-icon modal-close" data-modal="soundModal">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="soundName">Nome</label>
+                    <input type="text" id="soundName" class="form-input" placeholder="Nome do som">
+                </div>
+                <div class="form-group">
+                    <label for="soundCategory">Categoria</label>
+                    <select id="soundCategory" class="form-input"></select>
+                </div>
+                <div class="form-group">
+                    <label for="soundVolume">Volume Individual</label>
+                    <div class="volume-control">
+                        <input type="range" id="soundVolume" class="volume-slider" min="0" max="100" value="100">
+                        <span id="soundVolumeLabel" class="volume-label">100%</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Cor do Botão</label>
+                    <div id="colorPicker" class="color-picker">
+                        <button class="color-swatch" data-color="#7C3AED" style="background:#7C3AED"></button>
+                        <button class="color-swatch" data-color="#06D6A0" style="background:#06D6A0"></button>
+                        <button class="color-swatch" data-color="#3B82F6" style="background:#3B82F6"></button>
+                        <button class="color-swatch" data-color="#F59E0B" style="background:#F59E0B"></button>
+                        <button class="color-swatch" data-color="#EF4444" style="background:#EF4444"></button>
+                        <button class="color-swatch" data-color="#EC4899" style="background:#EC4899"></button>
+                        <button class="color-swatch" data-color="#14B8A6" style="background:#14B8A6"></button>
+                        <button class="color-swatch" data-color="#F97316" style="background:#F97316"></button>
+                        <button class="color-swatch" data-color="#8B5CF6" style="background:#8B5CF6"></button>
+                        <button class="color-swatch" data-color="#64748B" style="background:#64748B"></button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="soundHotkey">Hotkey</label>
+                    <input type="text" id="soundHotkey" class="form-input hotkey-input" placeholder="Pressione uma tecla..." readonly>
+                    <div class="form-hint">Clique e pressione a tecla desejada</div>
+                </div>
+                <div class="form-group form-row">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="soundLoop" class="toggle-input">
+                        <span class="toggle-switch"></span>
+                        Loop
+                    </label>
+                    <label class="toggle-label">
+                        <input type="checkbox" id="soundFavorite" class="toggle-input">
+                        <span class="toggle-switch"></span>
+                        Favorito ⭐
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="deleteSoundBtn" class="btn-danger">Excluir</button>
+                <button id="saveSoundBtn" class="btn-primary">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Modal -->
+    <div id="categoryModal" class="modal-overlay hidden">
+        <div class="modal modal-sm">
+            <div class="modal-header">
+                <h3 id="categoryModalTitle">Nova Categoria</h3>
+                <button class="btn-icon modal-close" data-modal="categoryModal">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="categoryName">Nome da Categoria</label>
+                    <input type="text" id="categoryName" class="form-input" placeholder="Ex: Memes, Música, Efeitos...">
+                </div>
+                <div class="form-group">
+                    <label>Ícone</label>
+                    <div id="emojiPicker" class="emoji-picker">
+                        <button class="emoji-btn" data-emoji="🎵">🎵</button>
+                        <button class="emoji-btn" data-emoji="🎮">🎮</button>
+                        <button class="emoji-btn" data-emoji="😂">😂</button>
+                        <button class="emoji-btn" data-emoji="🔥">🔥</button>
+                        <button class="emoji-btn" data-emoji="⚡">⚡</button>
+                        <button class="emoji-btn" data-emoji="🎤">🎤</button>
+                        <button class="emoji-btn" data-emoji="💀">💀</button>
+                        <button class="emoji-btn" data-emoji="🎶">🎶</button>
+                        <button class="emoji-btn" data-emoji="🗣️">🗣️</button>
+                        <button class="emoji-btn" data-emoji="🎧">🎧</button>
+                        <button class="emoji-btn" data-emoji="📢">📢</button>
+                        <button class="emoji-btn" data-emoji="🔔">🔔</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="deleteCategoryBtn" class="btn-danger hidden">Excluir</button>
+                <button id="saveCategoryBtn" class="btn-primary">Criar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tutorial Modal -->
+    <div id="tutorialModal" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>🚀 Como Usar o SoundMax</h3>
+                <button class="btn-icon modal-close" data-modal="tutorialModal">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="modal-body tutorial-body">
+                <div class="tutorial-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Instale o Driver Virtual (Obrigatório)</h4>
+                        <p>O app precisa do <strong>VB-Audio Virtual Cable</strong> para funcionar. Se ainda não tem, baixe gratuitamente no site oficial (vb-audio.com/Cable) e instale.</p>
+                    </div>
+                </div>
+                <div class="tutorial-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Configure o App</h4>
+                        <p>No menu lateral esquerdo do SoundMax:<br>
+                        • Em <strong>Microfone</strong>: Selecione o seu microfone de verdade.<br>
+                        • Em <strong>Saída (VB-Cable)</strong>: Selecione <em>"CABLE Input"</em>.</p>
+                    </div>
+                </div>
+                <div class="tutorial-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Ligue o Motor (Engine)</h4>
+                        <p>Clique no botão <strong>▶ Iniciar</strong> no canto esquerdo. O indicador vai ficar verde e pulsando. Isso significa que o app está misturando a sua voz com os sons ativamente.</p>
+                    </div>
+                </div>
+                <div class="tutorial-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>Configure o Discord / Jogo</h4>
+                        <p>Vá nas configurações de voz do Discord (ou do seu jogo preferido) e altere o seu <strong>Dispositivo de Entrada (Microfone)</strong> para <em>"CABLE Output (VB-Audio Virtual Cable)"</em>.</p>
+                    </div>
+                </div>
+                <div class="tutorial-step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h4>Toque os Memes! 🎵</h4>
+                        <p>Pronto! Ao clicar em qualquer som no grid central, você vai escutá-lo e os seus amigos também vão ouvir junto com a sua voz.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary modal-close" data-modal="tutorialModal">Entendi! Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>

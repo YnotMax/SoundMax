@@ -1,0 +1,49 @@
+{
+  "name": "soundmax",
+  "version": "2.0.0",
+  "description": "SoundMax — Premium Soundboard com mixagem nativa de áudio",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron . --disable-gpu --no-sandbox",
+    "rebuild": "electron-rebuild",
+    "dist": "electron-builder",
+    "package": "electron-packager . SoundMax --platform=win32 --arch=x64 --out=dist --overwrite --asar"
+  },
+  "build": {
+    "appId": "com.tonymax.soundmax",
+    "productName": "SoundMax",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        "portable",
+        "nsis"
+      ]
+    },
+    "files": [
+      "**/*",
+      "!dist/*"
+    ],
+    "asar": true,
+    "asarUnpack": [
+      "**/*.node"
+    ]
+  },
+  "keywords": [
+    "soundboard",
+    "audio",
+    "gaming",
+    "streaming",
+    "portaudio"
+  ],
+  "author": "Tony Max",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^35.0.0",
+    "electron-builder": "^26.8.1",
+    "electron-packager": "^17.1.2",
+    "electron-rebuild": "^3.2.9"
+  },
+  "dependencies": {}
+}
