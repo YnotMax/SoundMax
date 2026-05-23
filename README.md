@@ -12,16 +12,7 @@
 
 ## 📸 Demonstração do Aplicativo
 
-Para adicionar uma imagem incrível do SoundMax aqui no seu README, você tem duas formas super simples:
-
-1. **Via Repositório (Recomendado):** Crie uma pasta `assets/` no seu projeto, coloque o print do app lá (ex: `screenshot.png`) e adicione o código abaixo:
-   ```markdown
-   ![Interface do SoundMax](assets/screenshot.png)
-   ```
-2. **Via Editor do GitHub:** Quando estiver editando o `README.md` diretamente no site do GitHub, basta **arrastar e soltar** a imagem do seu computador no editor. O GitHub vai fazer o upload automaticamente e gerar um link seguro para você!
-
-> [!TIP]
-> Um bom screenshot mostrando a aba de *Soundboard* e a aba de *Voice Changer* com os visualizadores VU em movimento vai chamar muita atenção no seu portfólio!
+![Interface do SoundMax](image.png)
 
 ---
 
