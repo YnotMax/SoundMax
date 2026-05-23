@@ -1,58 +1,94 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/tandpfun/skill-icons/main/icons/Electron.svg" width="60" height="60" alt="Electron">
-  <h1>SoundMax — Premium Soundboard</h1>
-  <p><strong>Um Soundboard moderno e sem latência, projetado para Gamers, Streamers e Trolls de plantão.</strong></p>
+  <img src="https://raw.githubusercontent.com/tandpfun/skill-icons/main/icons/Electron.svg" width="80" height="80" alt="Electron">
+  <h1>SoundMax — Premium Soundboard & Voice Changer</h1>
+  <p><strong>Um Soundboard profissional e Modificador de Voz em tempo real com baixíssima latência, projetado para Gamers, Streamers e Criadores de Conteúdo.</strong></p>
+  
+  [![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](https://opensource.org/licenses/MIT)
+  [![Version](https://img.shields.io/badge/version-2.2.0-blue.svg)](#)
+  [![Platform](https://img.shields.io/badge/platform-windows-lightgrey.svg)](#)
+
   <hr>
 </div>
 
-O **SoundMax** é uma aplicação construída com Electron e Web Audio API que permite que você toque áudios, músicas e memes no seu microfone durante chamadas do Discord, jogos ou gravações, **sem** a necessidade de configurações complexas no VoiceMeeter.
+## 📸 Demonstração do Aplicativo
 
-## ✨ Recursos
+Para adicionar uma imagem incrível do SoundMax aqui no seu README, você tem duas formas super simples:
 
-* **⚡ Mixagem em Tempo Real:** Mixa a sua voz com os sons do aplicativo utilizando o motor nativo do navegador (Chromium Web Audio API), acabando com os engasgos de driver do Windows.
-* **🎨 Design Moderno (Neo-Brutalism/Dark):** Interface premium, limpa e com atalhos de teclado globais.
-* **📂 Armazenamento Interno Inteligente:** Arraste e solte seus MP3s! O aplicativo copia e gerencia os arquivos em uma biblioteca interna portátil.
-* **📊 Analisadores Visuais (VU Meter):** Barras azuis e verdes que mostram, em tempo real, se a sua voz e a saída do VB-Cable estão recebendo o som perfeitamente.
-* **🎮 Atalhos Globais (Hotkeys):** Configure uma tecla para tocar qualquer som, mesmo quando estiver dentro do seu jogo.
+1. **Via Repositório (Recomendado):** Crie uma pasta `assets/` no seu projeto, coloque o print do app lá (ex: `screenshot.png`) e adicione o código abaixo:
+   ```markdown
+   ![Interface do SoundMax](assets/screenshot.png)
+   ```
+2. **Via Editor do GitHub:** Quando estiver editando o `README.md` diretamente no site do GitHub, basta **arrastar e soltar** a imagem do seu computador no editor. O GitHub vai fazer o upload automaticamente e gerar um link seguro para você!
 
-## 🛠️ Tecnologias Utilizadas
+> [!TIP]
+> Um bom screenshot mostrando a aba de *Soundboard* e a aba de *Voice Changer* com os visualizadores VU em movimento vai chamar muita atenção no seu portfólio!
 
-* **[Electron](https://www.electronjs.org/)** - O framework base para a aplicação Desktop.
-* **[Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)** - Motor avançado e de baixíssima latência (Zero C++ ou PortAudio envolvido).
-* **HTML5, CSS Vanilla e Javascript Nativo** - Frontend leve e super-responsivo.
+---
+
+## ✨ Recursos Principais (v2.2)
+
+*   **🎙️ DSP Voice Changer (Novo!):** Mude sua voz em tempo real! Escolha entre efeitos como **Robô**, **Voz Grave**, **Megafone**, **Rádio**, **Chipmunk**, **Reverb** ou crie seu efeito **Customizado** ajustando Pitch, Reverb e Distorção individualmente.
+*   **🎹 Teclas de Atalho Customizáveis (Novo!):** Defina hotkeys personalizadas para **ativar/desativar cada efeito de voz**. Basta clicar com o botão direito no card do efeito e pressionar a tecla que deseja usar!
+*   **⚡ Web Audio API Nativa:** Motor de áudio totalmente reescrito sem PortAudio ou C++. Latência zero e imune a travamentos de exclusividade de driver do Windows.
+*   **📂 Biblioteca de Áudio Inteligente:** Arraste e solte seus MP3s, WAVs ou OGGs no grid! O app gerencia e sincroniza tudo em uma pasta portátil interna automaticamente.
+*   **🎨 Design Premium Dark:** Visual moderno e sofisticado construído com CSS Vanilla, com suporte a micro-animações, layout responsivo e visualizadores RMS (VU Meter) dinâmicos integrados para entrada e saída.
+*   **⌨️ Atalhos Globais no Soundboard:** Toque seus sons favoritos pressionando teclas de atalho mesmo estando dentro do seu jogo em tela cheia.
+*   **🎛️ Mixagem Inteligente:** Escute o retorno dos seus memes localmente enquanto os envia perfeitamente mixados com a sua voz para o Discord.
+
+---
+
+## 🛠️ Arquitetura de Código (Modular)
+
+Na versão **v2.2**, realizamos uma refatoração massiva para transformar o aplicativo em um sistema de alta engenharia, dividindo o código monolítico em módulos com responsabilidades únicas:
+
+-   [`js/state.js`](file:///d:/estudos/SoundMax/js/state.js) - Gerenciamento do estado reativo do app e sincronização com o `localStorage`.
+-   [`js/audio-engine.js`](file:///d:/estudos/SoundMax/js/audio-engine.js) - Roteamento da Web Audio API, conexões de microfone e mixers dinâmicos de áudio.
+-   [`js/sound-manager.js`](file:///d:/estudos/SoundMax/js/sound-manager.js) - Decodificador binário de áudio e reprodutor de buffers de baixíssima latência.
+-   [`js/ui.js`](file:///d:/estudos/SoundMax/js/ui.js) - Renderizador dinâmico de layouts, cards de sons, modais elegantes e toasts.
+-   [`js/events.js`](file:///d:/estudos/SoundMax/js/events.js) - Central de manipulação de cliques, drag-and-drop e listeners globais.
+-   [`js/vc-controller.js`](file:///d:/estudos/SoundMax/js/vc-controller.js) - Interface do modulador de voz, sliders e o sistema inteligente de gravação de atalhos.
+-   [`js/app.js`](file:///d:/estudos/SoundMax/js/app.js) - Ponto de entrada (Orquestrador) que inicializa as conexões com segurança.
+
+---
 
 ## 🚀 Como Instalar e Usar
 
 ### 1. Pré-Requisito (Obrigatório)
-Para que os seus amigos te escutem no Discord com a música, você precisará de um "cabo virtual".
-* Baixe e instale o [VB-Audio Virtual Cable](https://vb-audio.com/Cable/) gratuitamente.
+Para transmitir o áudio do aplicativo diretamente no canal de voz do seu jogo ou Discord, você precisa de uma linha de áudio virtual:
+*   Baixe e instale gratuitamente o [VB-Audio Virtual Cable](https://vb-audio.com/Cable/).
 
 ### 2. Configurando o SoundMax
-* Faça o download da última versão em [Releases](#).
-* Abra o `SoundMax.exe`.
-* No painel lateral, em **Microfone**, escolha o seu microfone de verdade (o seu Headset).
-* Em **Saída (VB-CABLE)**, selecione `CABLE Input`.
-* Clique em **▶ Iniciar**. O motor começará a juntar a sua voz com os seus sons!
+*   Faça o download do executável compactado na aba de **Releases** do repositório.
+*   Extraia o arquivo `.zip` e execute o `SoundMax.exe`.
+*   Nas configurações laterais do app:
+    *   Em **Microfone**: Selecione o seu microfone físico real.
+    *   Em **Saída (VB-CABLE)**: Selecione `CABLE Input`.
+*   Clique em **▶ Iniciar**. O motor começará a misturar a sua voz e os áudios instantaneamente.
 
-### 3. Configurando o Discord / Jogo
-* Vá nas opções de voz do Discord.
-* Altere o seu **Microfone (Dispositivo de Entrada)** para `CABLE Output`.
-* Pronto! Tudo o que você falar e os sons que você clicar vão sair limpos para os seus amigos.
+### 3. Configurando o Discord ou seu Jogo
+*   Abra o Discord, vá em *Configurações de Voz e Vídeo*.
+*   Altere o **Dispositivo de Entrada (Microfone)** para `CABLE Output (VB-Audio Virtual Cable)`.
+*   *Dica:* Desative as opções de *Redução de Ruído* e *Cancelamento de Eco* do Discord para que seus efeitos de voz e memes toquem com máxima qualidade de estúdio!
+
+---
 
 ## 💻 Para Desenvolvedores (Rodar localmente)
 
-Faça um clone deste repositório e rode os comandos:
+Faça o clone do repositório e configure seu ambiente local:
 
 ```bash
-# Instale as dependências
+# Instale as dependências de desenvolvimento
 npm install
 
-# Rode a aplicação
+# Inicie o app em modo de desenvolvimento hot-reload
 npm start
 
-# Construa o executável de distribuição
-npm run dist
+# Empacote o aplicativo criando um instalador Windows nativo (.exe e portable)
+npm run package
 ```
 
+---
+
 ## 📝 Licença
-Desenvolvido por **Tony Max** durante o processo de migração de carreira. Licença MIT. Sinta-se à vontade para fazer forks e pull requests!
+
+Desenvolvido com carinho por **Tony Max**. Projeto sob a licença MIT. Sinta-se à vontade para enviar issues, fazer forks e propor pull requests!
