@@ -250,53 +250,65 @@
                 <div class="vc-effects-grid" id="vcEffectsGrid">
 
                     <button class="vc-effect-card active" data-effect="none" id="vcEffect-none" title="Voz original sem efeito">
+                        <span class="vc-keybind-btn" data-effect="none" title="Clique direito para definir tecla"></span>
                         <div class="vc-effect-icon">🎙️</div>
                         <div class="vc-effect-name">Original</div>
                         <div class="vc-effect-desc">Passthrough</div>
                     </button>
 
                     <button class="vc-effect-card" data-effect="robot" id="vcEffect-robot" title="Voz robótica via ring modulation">
+                        <span class="vc-keybind-btn" data-effect="robot" title="Clique direito para definir tecla"></span>
                         <div class="vc-effect-icon">🤖</div>
                         <div class="vc-effect-name">Robô</div>
                         <div class="vc-effect-desc">Ring Modulation</div>
                     </button>
 
                     <button class="vc-effect-card" data-effect="deep" id="vcEffect-deep" title="Voz grave profunda">
+                        <span class="vc-keybind-btn" data-effect="deep" title="Clique direito para definir tecla"></span>
                         <div class="vc-effect-icon">👾</div>
                         <div class="vc-effect-name">Voz Grave</div>
                         <div class="vc-effect-desc">Bass Boost + EQ</div>
                     </button>
 
                     <button class="vc-effect-card" data-effect="chipmunk" id="vcEffect-chipmunk" title="Voz aguda estilo esquilo">
+                        <span class="vc-keybind-btn" data-effect="chipmunk" title="Clique direito para definir tecla"></span>
                         <div class="vc-effect-icon">🐿️</div>
                         <div class="vc-effect-name">Chipmunk</div>
                         <div class="vc-effect-desc">High Boost + EQ</div>
                     </button>
 
                     <button class="vc-effect-card" data-effect="radio" id="vcEffect-radio" title="Voz de rádio ou walkie-talkie">
+                        <span class="vc-keybind-btn" data-effect="radio" title="Clique direito para definir tecla"></span>
                         <div class="vc-effect-icon">📻</div>
                         <div class="vc-effect-name">Rádio</div>
                         <div class="vc-effect-desc">Bandpass + Crunch</div>
                     </button>
 
                     <button class="vc-effect-card" data-effect="reverb" id="vcEffect-reverb" title="Eco e reverberação">
+                        <span class="vc-keybind-btn" data-effect="reverb" title="Clique direito para definir tecla"></span>
                         <div class="vc-effect-icon">👻</div>
                         <div class="vc-effect-name">Reverb</div>
                         <div class="vc-effect-desc">Echo + Delay</div>
                     </button>
 
                     <button class="vc-effect-card" data-effect="megaphone" id="vcEffect-megaphone" title="Voz de megafone/alto-falante">
+                        <span class="vc-keybind-btn" data-effect="megaphone" title="Clique direito para definir tecla"></span>
                         <div class="vc-effect-icon">📢</div>
                         <div class="vc-effect-name">Megafone</div>
                         <div class="vc-effect-desc">Distortion + EQ</div>
                     </button>
 
                     <button class="vc-effect-card" data-effect="custom" id="vcEffect-custom" title="Efeitos personalizados com sliders">
+                        <span class="vc-keybind-btn" data-effect="custom" title="Clique direito para definir tecla"></span>
                         <div class="vc-effect-icon">🎛️</div>
                         <div class="vc-effect-name">Custom</div>
                         <div class="vc-effect-desc">Controle total</div>
                     </button>
 
+                </div>
+                <div class="vc-keybind-hint">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M7 16h10"/></svg>
+                    <strong>Clique direito</strong> no card do efeito para atribuir uma tecla personalizada. Pressione a tecla para ativar/desativar. <strong>Delete</strong> remove a tecla.
                 </div>
 
                 <!-- Custom Effect Sliders (hidden unless custom is active) -->
@@ -531,6 +543,12 @@
     <div id="toastContainer" class="toast-container"></div>
 
     <script src="voice-changer.js"></script>
-    <script src="app.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/audio-engine.js"></script>
+    <script src="js/sound-manager.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/events.js"></script>
+    <script src="js/vc-controller.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>

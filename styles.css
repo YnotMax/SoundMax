@@ -817,6 +817,94 @@ body {
 }
 .vc-effect-card.active .vc-effect-name { color: var(--accent); }
 
+/* Keybind Button (customizable hotkey on each effect card) */
+.vc-keybind-btn {
+  position: absolute; top: 5px; right: 5px;
+  min-width: 20px; height: 18px;
+  padding: 0 5px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 0.6rem; font-weight: 700;
+  color: var(--text-muted);
+  font-family: 'Inter', monospace;
+  line-height: 18px;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition);
+  z-index: 2;
+  display: none; /* Hidden until assigned or hovered */
+}
+/* Show keybind btn on hover (to indicate it's clickable) */
+.vc-effect-card:hover .vc-keybind-btn {
+  display: block;
+}
+/* Always show when a key is assigned */
+.vc-keybind-btn.assigned {
+  display: block;
+}
+.vc-keybind-btn.assigned:empty::after {
+  content: '⌨';
+}
+.vc-effect-card:hover .vc-keybind-btn:not(.assigned) {
+  display: block;
+}
+.vc-effect-card:hover .vc-keybind-btn:not(.assigned)::after {
+  content: '⌨';
+  font-size: 0.7rem;
+}
+.vc-keybind-btn:hover {
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+  background: rgba(124,58,237,0.15);
+}
+.vc-effect-card.active .vc-keybind-btn.assigned {
+  background: rgba(124,58,237,0.2);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Listening state — pulsing border while waiting for key press */
+.vc-keybind-btn.listening {
+  display: block !important;
+  border-color: var(--mint) !important;
+  color: var(--mint) !important;
+  background: rgba(6,214,160,0.12);
+  animation: keybind-pulse 0.8s ease-in-out infinite;
+}
+.vc-keybind-btn.listening::after {
+  content: '...' !important;
+  font-size: 0.6rem;
+}
+@keyframes keybind-pulse {
+  0%, 100% { box-shadow: 0 0 4px rgba(6,214,160,0.2); }
+  50% { box-shadow: 0 0 12px rgba(6,214,160,0.5); }
+}
+
+/* Keybind pressed flash animation */
+.vc-effect-card.hotkey-flash {
+  animation: hotkey-press 0.35s ease;
+}
+@keyframes hotkey-press {
+  0% { transform: scale(1); }
+  30% { transform: scale(0.93); box-shadow: 0 0 30px var(--accent-glow); }
+  100% { transform: scale(1); }
+}
+
+/* Keybind Hint */
+.vc-keybind-hint {
+  display: flex; align-items: flex-start; gap: 8px;
+  font-size: 0.75rem; color: var(--text-muted);
+  line-height: 1.5;
+  padding: 10px 14px;
+  background: rgba(124,58,237,0.04);
+  border: 1px solid rgba(124,58,237,0.08);
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+}
+.vc-keybind-hint svg { flex-shrink: 0; margin-top: 1px; color: var(--accent); opacity: 0.6; }
+.vc-keybind-hint strong { color: var(--accent); }
+
 /* Custom Sliders */
 .vc-custom-sliders {
   background: var(--bg-surface);
