@@ -102,8 +102,11 @@ class VoiceChanger {
       case 'none':      this._applyNone();      break;
       case 'robot':     this._applyRobot();     break;
       case 'deep':      this._applyDeep();      break;
+      case 'demon':     this._applyDemon();     break;
       case 'chipmunk':  this._applyChipmunk();  break;
+      case 'alien':     this._applyAlien();     break;
       case 'radio':     this._applyRadio();     break;
+      case 'astronaut': this._applyAstronaut(); break;
       case 'reverb':    this._applyReverb();    break;
       case 'megaphone': this._applyMegaphone(); break;
       case 'custom':    this._applyCustom();    break;
@@ -462,6 +465,175 @@ class VoiceChanger {
     out.connect(this.masterGain);
 
     this.effectNodes = [eqNode, dist, dryGain, delay, fb, wetGain, out];
+  }
+
+  /**
+   * DEMÔNIO — Voz extremamente grave, distorcida e com tremolo de baixa frequência
+   */
+  _applyDemon() {
+    const subBoost = this.ctx.createBiquadFilter();
+    subBoost.type = 'peaking';
+    subBoost.frequency.value = 65;
+    subBoost.Q.value = 1.5;
+    subBoost.gain.value = 15;
+
+    const bass = this.ctx.createBiquadFilter();
+    bass.type = 'lowshelf';
+    bass.frequency.value = 150;
+    bass.gain.value = 12;
+
+    const lp = this.ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 1000;
+    lp.Q.value = 1.0;
+
+    const dist = this.ctx.createWaveShaper();
+    dist.curve = this._makeDistortionCurve(300);
+    dist.oversample = '4x';
+
+    const tremolo = this.ctx.createGain();
+    tremolo.gain.value = 0;
+
+    const dcBuf = this.ctx.createBuffer(1, 2, this.ctx.sampleRate);
+    dcBuf.getChannelData(0)[0] = dcBuf.getChannelData(0)[1] = 1.0;
+    const dcSrc = this.ctx.createBufferSource();
+    dcSrc.buffer = dcBuf;
+    dcSrc.loop = true;
+
+    const dcScale = this.ctx.createGain();
+    dcScale.gain.value = 0.65;
+    dcSrc.connect(dcScale);
+    dcScale.connect(tremolo.gain);
+
+    const osc = this.ctx.createOscillator();
+    osc.type = 'sawtooth';
+    osc.frequency.value = 16;
+    const oscScale = this.ctx.createGain();
+    oscScale.gain.value = 0.35;
+    osc.connect(oscScale);
+    oscScale.connect(tremolo.gain);
+
+    const out = this.ctx.createGain();
+    out.gain.value = 1.2;
+
+    dcSrc.start();
+    osc.start();
+
+    this.analyserNode.connect(subBoost);
+    subBoost.connect(bass);
+    bass.connect(lp);
+    lp.connect(dist);
+    dist.connect(tremolo);
+    tremolo.connect(out);
+    out.connect(this.masterGain);
+
+    this.effectNodes = [subBoost, bass, lp, dist, tremolo, out, osc, oscScale, dcSrc, dcScale];
+  }
+
+  /**
+   * ALIENÍGENA — Modulação metálica rápida com delay estéreo / chorus
+   */
+  _applyAlien() {
+    const ringGain = this.ctx.createGain();
+    ringGain.gain.value = 0;
+
+    const osc = this.ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = 145;
+
+    const oscGain = this.ctx.createGain();
+    oscGain.gain.value = 1.0;
+    osc.connect(oscGain);
+    oscGain.connect(ringGain.gain);
+
+    const hp = this.ctx.createBiquadFilter();
+    hp.type = 'highpass';
+    hp.frequency.value = 600;
+
+    const bp = this.ctx.createBiquadFilter();
+    bp.type = 'peaking';
+    bp.frequency.value = 3200;
+    bp.Q.value = 2.0;
+    bp.gain.value = 8;
+
+    const delay = this.ctx.createDelay(1.0);
+    delay.delayTime.value = 0.025;
+    const fb = this.ctx.createGain();
+    fb.gain.value = 0.45;
+
+    const out = this.ctx.createGain();
+    out.gain.value = 1.6;
+
+    osc.start();
+
+    this.analyserNode.connect(hp);
+    hp.connect(bp);
+    bp.connect(ringGain);
+    
+    ringGain.connect(out);
+    ringGain.connect(delay);
+    delay.connect(fb);
+    fb.connect(delay);
+    delay.connect(out);
+
+    out.connect(this.masterGain);
+
+    this.effectNodes = [hp, bp, ringGain, osc, oscGain, delay, fb, out];
+  }
+
+  /**
+   * ASTRONAUTA — Filtro telefônico extremo + ruído estático de fundo espacial
+   */
+  _applyAstronaut() {
+    const preDist = this.ctx.createWaveShaper();
+    preDist.curve = this._makeDistortionCurve(180);
+    preDist.oversample = '2x';
+
+    const hp = this.ctx.createBiquadFilter();
+    hp.type = 'highpass';
+    hp.frequency.value = 900;
+    hp.Q.value = 1.5;
+
+    const lp = this.ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 2200;
+    lp.Q.value = 1.5;
+
+    const bufferSize = this.ctx.sampleRate * 2;
+    const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+    const noiseData = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      noiseData[i] = Math.random() * 2 - 1;
+    }
+    const noiseSrc = this.ctx.createBufferSource();
+    noiseSrc.buffer = noiseBuffer;
+    noiseSrc.loop = true;
+
+    const noiseFilter = this.ctx.createBiquadFilter();
+    noiseFilter.type = 'bandpass';
+    noiseFilter.frequency.value = 1500;
+    noiseFilter.Q.value = 1.0;
+
+    const noiseGain = this.ctx.createGain();
+    noiseGain.gain.value = 0.05;
+
+    const out = this.ctx.createGain();
+    out.gain.value = 0.65;
+
+    noiseSrc.start();
+
+    this.analyserNode.connect(preDist);
+    preDist.connect(hp);
+    hp.connect(lp);
+    lp.connect(out);
+
+    noiseSrc.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(out);
+
+    out.connect(this.masterGain);
+
+    this.effectNodes = [preDist, hp, lp, noiseSrc, noiseFilter, noiseGain, out];
   }
 
   // ─── DSP Utilities ─────────────────────────────────────────────────────────

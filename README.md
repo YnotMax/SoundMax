@@ -18,7 +18,7 @@
 
 ## ✨ Recursos Principais (v2.2)
 
-*   **🎙️ DSP Voice Changer (Novo!):** Mude sua voz em tempo real! Escolha entre efeitos como **Robô**, **Voz Grave**, **Megafone**, **Rádio**, **Chipmunk**, **Reverb** ou crie seu efeito **Customizado** ajustando Pitch, Reverb e Distorção individualmente.
+*   **🎙️ DSP Voice Changer (Novo!):** Mude sua voz em tempo real! Escolha entre efeitos como **Robô**, **Voz Grave**, **Demônio**, **Chipmunk**, **Alienígena**, **Rádio**, **Astronauta**, **Reverb**, **Megafone** ou crie seu efeito **Customizado** ajustando Pitch, Reverb e Distorção individualmente.
 *   **🎹 Teclas de Atalho Customizáveis (Novo!):** Defina hotkeys personalizadas para **ativar/desativar cada efeito de voz**. Basta clicar com o botão direito no card do efeito e pressionar a tecla que deseja usar!
 *   **⚡ Web Audio API Nativa:** Motor de áudio totalmente reescrito sem PortAudio ou C++. Latência zero e imune a travamentos de exclusividade de driver do Windows.
 *   **📂 Biblioteca de Áudio Inteligente:** Arraste e solte seus MP3s, WAVs ou OGGs no grid! O app gerencia e sincroniza tudo em uma pasta portátil interna automaticamente.
