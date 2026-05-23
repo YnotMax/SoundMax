@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/tandpfun/skill-icons/main/icons/Electron.svg" width="80" height="80" alt="Electron">
+  <img src="assets/icon.png" width="80" height="80" alt="SoundMax Icon">
   <h1>SoundMax — Premium Soundboard & Voice Changer</h1>
   <p><strong>Um Soundboard profissional e Modificador de Voz em tempo real com baixíssima latência, projetado para Gamers, Streamers e Criadores de Conteúdo.</strong></p>
   
