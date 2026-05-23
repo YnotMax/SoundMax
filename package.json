@@ -7,7 +7,7 @@
     "start": "electron . --disable-gpu --no-sandbox",
     "rebuild": "electron-rebuild",
     "dist": "electron-builder",
-    "package": "electron-packager . SoundMax --platform=win32 --arch=x64 --out=dist --overwrite --asar"
+    "package": "electron-packager . SoundMax --platform=win32 --arch=x64 --out=dist --overwrite --asar --icon=assets/icon.ico"
   },
   "build": {
     "appId": "com.tonymax.soundmax",

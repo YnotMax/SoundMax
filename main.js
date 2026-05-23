@@ -77,6 +77,7 @@ function createWindow() {
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js'),
     },
+    icon: path.join(__dirname, 'assets', 'icon.png'),
     show: false,
   });
 
@@ -88,9 +89,12 @@ function createWindow() {
 }
 
 function createTray() {
-  const icon = nativeImage.createEmpty();
+  const iconPath = path.join(__dirname, 'assets', 'icon.png');
+  let icon = nativeImage.createFromPath(iconPath);
+  icon = icon.resize({ width: 16, height: 16 }); // Resize for tray
+  
   tray = new Tray(icon);
-  tray.setToolTip('SoundMax — Premium Soundboard');
+  tray.setToolTip('SoundMax');
   tray.setContextMenu(Menu.buildFromTemplate([
     { label: 'Abrir SoundMax', click: () => mainWindow.show() },
     { label: 'Parar Todos', click: () => { mainWindow?.webContents.send('all-stopped'); }},
@@ -161,6 +165,9 @@ app.whenReady().then(() => {
   createTray();
   globalShortcut.register('CommandOrControl+Shift+S', () => {
     mainWindow?.webContents.send('all-stopped');
+  });
+  globalShortcut.register('CommandOrControl+Shift+V', () => {
+    mainWindow?.webContents.send('vc-toggle');
   });
 });
 

@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d0d1a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1a0a2e;stop-opacity:1" />
+    </linearGradient>
+    <!-- Purple accent gradient -->
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7c3aed;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#a855f7;stop-opacity:1" />
+    </linearGradient>
+    <!-- Glow filter -->
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="12" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <!-- Subtle glow for bars -->
+    <filter id="barGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background rounded rect -->
+  <rect width="512" height="512" rx="96" ry="96" fill="url(#bgGrad)"/>
+
+  <!-- Outer subtle glow ring -->
+  <rect width="512" height="512" rx="96" ry="96" fill="none" stroke="#7c3aed" stroke-width="2" opacity="0.3"/>
+
+  <!-- Sound wave bars — centered vertically at 280, varying heights -->
+  <!-- Bar 1 -->
+  <rect x="72" y="236" width="36" height="88" rx="18" fill="url(#accentGrad)" opacity="0.6" filter="url(#barGlow)"/>
+  <!-- Bar 2 -->
+  <rect x="122" y="196" width="36" height="168" rx="18" fill="url(#accentGrad)" opacity="0.75" filter="url(#barGlow)"/>
+  <!-- Bar 3 - tallest, center-left -->
+  <rect x="172" y="156" width="36" height="248" rx="18" fill="url(#accentGrad)" filter="url(#barGlow)"/>
+  <!-- Bar 4 - main center with extra glow -->
+  <rect x="222" y="128" width="36" height="304" rx="18" fill="url(#accentGrad)" filter="url(#glow)"/>
+  <!-- Bar 5 - tallest, center-right -->
+  <rect x="272" y="148" width="36" height="264" rx="18" fill="url(#accentGrad)" filter="url(#barGlow)"/>
+  <!-- Bar 6 -->
+  <rect x="322" y="188" width="36" height="184" rx="18" fill="url(#accentGrad)" opacity="0.8" filter="url(#barGlow)"/>
+  <!-- Bar 7 -->
+  <rect x="372" y="220" width="36" height="120" rx="18" fill="url(#accentGrad)" opacity="0.65" filter="url(#barGlow)"/>
+  <!-- Bar 8 -->
+  <rect x="422" y="248" width="36" height="64" rx="18" fill="url(#accentGrad)" opacity="0.5" filter="url(#barGlow)"/>
+
+  <!-- "S" letterform — stylized, at bottom center -->
+  <!-- We use a custom path for an "SM" monogram hint: just a clean glowing dot accent -->
+  <circle cx="256" cy="430" r="10" fill="#a855f7" filter="url(#glow)" opacity="0.9"/>
+  <circle cx="230" cy="430" r="6" fill="#7c3aed" opacity="0.6"/>
+  <circle cx="282" cy="430" r="6" fill="#7c3aed" opacity="0.6"/>
+</svg>

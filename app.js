@@ -1,5 +1,6 @@
 /* ═══════════════════════════════════════
-   SoundMax v2.1 — Web Audio API Engine
+   SoundMax v2.2 — Web Audio API Engine
+   + DSP Voice Changer
    ═══════════════════════════════════════ */
 
 const state = {
@@ -19,13 +20,14 @@ const engine = {
   ctx: new (window.AudioContext || window.webkitAudioContext)(),
   micStream: null,
   micSource: null,
+  micGainNode: null,  // volume do microfone
   mixDest: null,
   outAudio: null,
   micAnalyser: null,
   mixAnalyser: null,
   running: false,
-  soundBuffers: new Map(), // id -> AudioBuffer
-  activeNodes: new Map(),  // id -> { source, gain, mixGain }
+  soundBuffers: new Map(),
+  activeNodes: new Map(),
   animFrame: null
 };
 
@@ -222,9 +224,10 @@ function renderSounds() {
     card.dataset.soundId = sound.id;
 
     const dur = formatTime(sound.duration);
+    const hotkeyDisplay = sound.hotkey ? formatHotkeyDisplay(sound.hotkey) : '';
     card.innerHTML = `
       ${sound.favorite ? '<span class="sound-fav">⭐</span>' : ''}
-      ${sound.hotkey ? `<span class="sound-hotkey">${sound.hotkey}</span>` : ''}
+      ${hotkeyDisplay ? `<span class="sound-hotkey" title="Hotkey: ${sound.hotkey}">${hotkeyDisplay}</span>` : ''}
       <div class="sound-play-icon">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="${playing ? '6,4 10,4 10,20 6,20' : '5,3 19,12 5,21'}"></polygon>${playing ? '<polygon points="14,4 18,4 18,20 14,20"></polygon>' : ''}</svg>
       </div>
@@ -321,6 +324,16 @@ function openCategoryModal(catId = null) {
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); state.editingSoundId = null; state.editingCategoryId = null; }
 
 function formatTime(s) { if (!s || isNaN(s)) return '0:00'; return `${Math.floor(s/60)}:${Math.floor(s%60).toString().padStart(2,'0')}`; }
+
+// Formata a tecla para exibição no card (F1 → F1, Numpad1 → N1, a → A)
+function formatHotkeyDisplay(key) {
+  if (!key) return '';
+  if (key.startsWith('F') && !isNaN(key.slice(1))) return key; // F1-F12
+  if (key.startsWith('Numpad')) return 'N' + key.slice(6);     // Numpad0-9 → N0-N9
+  if (key.length === 1) return key.toUpperCase();               // Letra/número
+  return key.slice(0, 4);                                        // Outros (recortado)
+}
+
 function showToast(msg, type = 'info') {
   const c = document.getElementById('toastContainer');
   const t = document.createElement('div'); t.className = `toast ${type}`; t.textContent = msg;
@@ -426,13 +439,19 @@ async function startEngine() {
     // For analysis, we just connect a dummy source to mixAnalyser? No, we route the mix bus into it.
     // Actually, creating another destination for analysis is tricky, let's just use a GainNode as the true MixBus.
     
-    // REDESIGN THE MIX BUS:
+    // MIX BUS com controle de volume do mic:
     engine.micSource.disconnect();
-    
+
     const masterMixBus = engine.ctx.createGain();
+
+    // Mic gain node (volume separado do mic)
+    engine.micGainNode = engine.ctx.createGain();
+    engine.micGainNode.gain.value = (parseInt(document.getElementById('micVolume')?.value || 100)) / 100;
+
     engine.micSource.connect(engine.micAnalyser);
-    engine.micAnalyser.connect(masterMixBus);
-    
+    engine.micAnalyser.connect(engine.micGainNode);
+    engine.micGainNode.connect(masterMixBus);
+
     masterMixBus.connect(engine.mixAnalyser);
     engine.mixAnalyser.connect(engine.mixDest);
 
@@ -467,14 +486,15 @@ function stopEngine() {
   if (engine.animFrame) cancelAnimationFrame(engine.animFrame);
   if (engine.micStream) engine.micStream.getTracks().forEach(t => t.stop());
   if (engine.outAudio) { engine.outAudio.pause(); engine.outAudio.srcObject = null; }
-  
+
   engine.micStream = null;
   engine.micSource = null;
+  engine.micGainNode = null;
   engine.mixDest = null;
   engine.outAudio = null;
   engine.micAnalyser = null;
   engine.mixAnalyser = null;
-  
+
   updateEngineStatus();
 }
 
@@ -498,6 +518,26 @@ function updateEngineStatus() {
 
 // ─── Events ───
 function initEvents() {
+  // ── Tab Navigation ──
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.tab;
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+
+      const isSoundboard = tab === 'soundboard';
+      document.querySelector('.content-header').classList.toggle('hidden', !isSoundboard);
+      document.getElementById('dropZone').classList.toggle('hidden', !isSoundboard);
+      document.getElementById('voiceChangerPanel').classList.toggle('hidden', isSoundboard);
+      document.getElementById('searchWrapper').classList.toggle('hidden', !isSoundboard);
+      document.querySelector('.topbar-right').classList.toggle('hidden', !isSoundboard);
+    });
+  });
+
   document.getElementById('sidebarToggle').addEventListener('click', () => document.querySelector('.sidebar').classList.toggle('collapsed'));
 
   document.getElementById('addSoundBtn').addEventListener('click', async () => {
@@ -528,7 +568,7 @@ function initEvents() {
   mv.addEventListener('input', (e) => {
     state.masterVolume = parseInt(e.target.value);
     document.getElementById('masterVolumeLabel').textContent = state.masterVolume + '%';
-    
+
     // Update live volumes
     engine.activeNodes.forEach((nodes, soundId) => {
       const sound = state.sounds.find(s => s.id === soundId);
@@ -539,6 +579,15 @@ function initEvents() {
       }
     });
     saveState();
+  });
+
+  // Volume do Microfone (independente dos áudios)
+  document.getElementById('micVolume')?.addEventListener('input', (e) => {
+    const pct = parseInt(e.target.value);
+    const gain = pct / 100; // 0–200 → 0.0–2.0
+    document.getElementById('micVolumeLabel').textContent = pct + '%';
+    if (engine.micGainNode) engine.micGainNode.gain.setTargetAtTime(gain, engine.ctx.currentTime, 0.05);
+    localStorage.setItem('soundmax_micVol', pct);
   });
 
   document.getElementById('engineToggle')?.addEventListener('click', toggleEngine);
@@ -585,7 +634,21 @@ function initEvents() {
   document.querySelectorAll('.color-swatch').forEach(b => b.addEventListener('click', () => { document.querySelectorAll('.color-swatch').forEach(x => x.classList.remove('active')); b.classList.add('active'); }));
 
   document.getElementById('soundVolume').addEventListener('input', (e) => document.getElementById('soundVolumeLabel').textContent = e.target.value + '%');
-  document.getElementById('soundHotkey').addEventListener('keydown', (e) => { e.preventDefault(); document.getElementById('soundHotkey').value = e.key.length === 1 ? e.key.toUpperCase() : e.key; });
+
+  // Hotkey input — suporta F1-F12, Numpad0-9, letras e números
+  document.getElementById('soundHotkey').addEventListener('keydown', (e) => {
+    e.preventDefault();
+    const blocked = ['Shift','Control','Alt','Meta','Tab','CapsLock','Escape'];
+    if (blocked.includes(e.key)) return;
+    // Armazena o e.key completo (ex: "F1", "Numpad5", "a")
+    const keyEl = document.getElementById('soundHotkey');
+    keyEl.value = e.key;
+    keyEl.placeholder = formatHotkeyDisplay(e.key);
+  });
+  // Botão limpar hotkey (duplo clique)
+  document.getElementById('soundHotkey').addEventListener('dblclick', () => {
+    document.getElementById('soundHotkey').value = '';
+  });
   document.getElementById('saveSoundBtn').addEventListener('click', () => {
     const s = state.sounds.find(s => s.id === state.editingSoundId); if (!s) return;
     s.name = document.getElementById('soundName').value.trim() || s.name;
@@ -610,6 +673,8 @@ function initEvents() {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') { stopAllSounds(); return; }
     if (e.ctrlKey && e.key === 'k') { e.preventDefault(); document.getElementById('searchInput').focus(); return; }
+    // Ctrl+Shift+V — toggle Voice Changer
+    if (e.ctrlKey && e.shiftKey && e.key === 'V') { e.preventDefault(); vcToggle(); return; }
     if (['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName)) return;
     const s = state.sounds.find(s => s.hotkey && s.hotkey.toLowerCase() === e.key.toLowerCase());
     if (s) { e.preventDefault(); playSound(s.id); }
@@ -620,7 +685,224 @@ function initEvents() {
   });
 }
 
-// ─── Init ───
+// ─── Voice Changer Controller ───────────────────────────────────────────────
+
+const vc = new VoiceChanger();
+let vcRunning = false;
+let vcAnimFrame = null;
+let vcAudio = null; // elemento Audio para rotear para VB-Cable
+
+async function vcToggle() {
+  if (vcRunning) {
+    await vcStop();
+  } else {
+    await vcStart();
+  }
+}
+
+async function vcStart() {
+  const micId = document.getElementById('micInput').value;
+  const outId = document.getElementById('audioOutput').value;
+
+  const btn = document.getElementById('vcToggleBtn');
+  const indicator = document.getElementById('vcIndicator');
+  const statusText = document.getElementById('vcStatusText');
+
+  try {
+    statusText.textContent = 'Inicializando microfone...';
+    await vc.init(micId || null);
+
+    // ─── ROTA PARA VB-CABLE ───
+    const outStream = vc.getOutputStream();
+    if (outStream) {
+      vcAudio = new Audio();
+      vcAudio.srcObject = outStream;
+      if (outId) {
+        try { await vcAudio.setSinkId(outId); } catch (e) { console.warn('[VC] setSinkId falhou:', e); }
+      }
+      vcAudio.play().catch(e => console.warn('[VC] play error:', e));
+    }
+
+    // Aplicar efeito selecionado
+    const activeCard = document.querySelector('.vc-effect-card.active');
+    if (activeCard) vc.setEffect(activeCard.dataset.effect);
+
+    vcRunning = true;
+    indicator.classList.remove('off'); indicator.classList.add('on');
+    btn.classList.add('active');
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"/></svg> Parar`;
+    statusText.textContent = `Ativo — saída: ${outId ? 'VB-Cable' : 'padrão'}`;
+    document.getElementById('vcVisualizerLabel').classList.add('hidden');
+    vcDrawWaveform();
+    showToast('Voice Changer ativado! Voz sendo enviada para a saída selecionada.', 'success');
+  } catch (err) {
+    console.error('[VC] Start error:', err);
+    statusText.textContent = 'Erro: ' + err.message;
+    showToast('Erro ao ativar Voice Changer: ' + err.message, 'error');
+  }
+}
+
+async function vcStop() {
+  if (vcAnimFrame) { cancelAnimationFrame(vcAnimFrame); vcAnimFrame = null; }
+
+  // Parar o elemento Audio que rota para o VB-Cable
+  if (vcAudio) { vcAudio.pause(); vcAudio.srcObject = null; vcAudio = null; }
+
+  await vc.destroy();
+  vcRunning = false;
+
+  const btn = document.getElementById('vcToggleBtn');
+  const indicator = document.getElementById('vcIndicator');
+  const statusText = document.getElementById('vcStatusText');
+
+  indicator.classList.remove('on'); indicator.classList.add('off');
+  btn.classList.remove('active');
+  btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg> Iniciar`;
+  statusText.textContent = 'Inativo — clique em Iniciar';
+  document.getElementById('vcVisualizerLabel').classList.remove('hidden');
+
+  const canvas = document.getElementById('vcCanvas');
+  const ctx2d = canvas.getContext('2d');
+  ctx2d.clearRect(0, 0, canvas.width, canvas.height);
+  showToast('Voice Changer desativado', 'info');
+}
+
+function vcDrawWaveform() {
+  const canvas = document.getElementById('vcCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width;
+  const H = canvas.height;
+
+  const draw = () => {
+    if (!vcRunning) return;
+    vcAnimFrame = requestAnimationFrame(draw);
+
+    const data = vc.getWaveformData();
+    if (!data) return;
+
+    ctx.clearRect(0, 0, W, H);
+
+    // Background subtle gradient
+    const bg = ctx.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, 'rgba(124,58,237,0.03)');
+    bg.addColorStop(1, 'rgba(124,58,237,0)');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    // Center line
+    ctx.beginPath();
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    ctx.lineWidth = 1;
+    ctx.moveTo(0, H / 2);
+    ctx.lineTo(W, H / 2);
+    ctx.stroke();
+
+    // Waveform
+    const gradient = ctx.createLinearGradient(0, 0, W, 0);
+    gradient.addColorStop(0, '#7c3aed');
+    gradient.addColorStop(0.5, '#a855f7');
+    gradient.addColorStop(1, '#7c3aed');
+
+    ctx.beginPath();
+    ctx.strokeStyle = gradient;
+    ctx.lineWidth = 2;
+    ctx.lineJoin = 'round';
+
+    const sliceW = W / data.length;
+    let x = 0;
+    for (let i = 0; i < data.length; i++) {
+      const v = data[i] / 128.0;
+      const y = (v * H) / 2;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+      x += sliceW;
+    }
+    ctx.stroke();
+
+    // Glow effect
+    ctx.shadowColor = '#7c3aed';
+    ctx.shadowBlur = 8;
+    ctx.beginPath();
+    ctx.strokeStyle = 'rgba(124,58,237,0.3)';
+    ctx.lineWidth = 4;
+    x = 0;
+    for (let i = 0; i < data.length; i++) {
+      const v = data[i] / 128.0;
+      const y = (v * H) / 2;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+      x += sliceW;
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+  };
+
+  draw();
+}
+
+function initVoiceChanger() {
+  // Toggle button
+  document.getElementById('vcToggleBtn').addEventListener('click', vcToggle);
+
+  // Monitor toggle
+  document.getElementById('vcMonitor').addEventListener('change', (e) => {
+    vc.setMonitor(e.target.checked);
+  });
+
+  // Effect cards
+  document.querySelectorAll('.vc-effect-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.vc-effect-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+
+      const effect = card.dataset.effect;
+
+      // Show/hide relevant sliders
+      const customSliders = document.getElementById('vcCustomSliders');
+      const robotSlider = document.getElementById('vcRobotSlider');
+      customSliders.classList.toggle('hidden', effect !== 'custom');
+      robotSlider.classList.toggle('hidden', effect !== 'robot');
+
+      if (vcRunning) vc.setEffect(effect);
+    });
+  });
+
+  // Custom sliders
+  const pitchSlider = document.getElementById('vcPitchSlider');
+  const reverbSlider = document.getElementById('vcReverbSlider');
+  const distSlider = document.getElementById('vcDistSlider');
+  const ringSlider = document.getElementById('vcRingFreqSlider');
+
+  pitchSlider.addEventListener('input', (e) => {
+    const v = parseInt(e.target.value);
+    document.getElementById('vcPitchVal').textContent = `${v > 0 ? '+' : ''}${v} st`;
+    vc.updateParam('pitch', v);
+  });
+  reverbSlider.addEventListener('input', (e) => {
+    const v = parseInt(e.target.value);
+    document.getElementById('vcReverbVal').textContent = `${v}%`;
+    vc.updateParam('reverb', v / 100);
+  });
+  distSlider.addEventListener('input', (e) => {
+    const v = parseInt(e.target.value);
+    document.getElementById('vcDistVal').textContent = `${v}%`;
+    vc.updateParam('distortion', v / 100);
+  });
+  ringSlider.addEventListener('input', (e) => {
+    const v = parseInt(e.target.value);
+    document.getElementById('vcRingFreqVal').textContent = `${v} Hz`;
+    vc.updateParam('ringFreq', v);
+  });
+
+  // Stop VC if app closes
+  window.addEventListener('beforeunload', () => { if (vcRunning) vc.destroy(); });
+
+  // Global hotkey from main process (Ctrl+Shift+V even when minimized)
+  window.soundmax.onVcToggle(() => vcToggle());
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
 async function init() {
   loadState();
   if (state.viewMode === 'list') {
@@ -631,7 +913,15 @@ async function init() {
   document.getElementById('masterVolume').value = state.masterVolume;
   document.getElementById('masterVolumeLabel').textContent = state.masterVolume + '%';
 
+  // Restaurar volume do mic salvo
+  const savedMicVol = localStorage.getItem('soundmax_micVol') || '100';
+  const micVolEl = document.getElementById('micVolume');
+  const micVolLabel = document.getElementById('micVolumeLabel');
+  if (micVolEl) { micVolEl.value = savedMicVol; }
+  if (micVolLabel) { micVolLabel.textContent = savedMicVol + '%'; }
+
   initEvents();
+  initVoiceChanger();
   await initDevices();
   renderCategories();
   renderSounds();

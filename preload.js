@@ -10,4 +10,5 @@ contextBridge.exposeInMainWorld('soundmax', {
 
   // Events from main
   onAllStopped: (cb) => ipcRenderer.on('all-stopped', () => cb()),
+  onVcToggle: (cb) => ipcRenderer.on('vc-toggle', () => cb()),
 });

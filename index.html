@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="SoundMax - Soundboard profissional para gamers e streamers. Toque sons no mic em tempo real.">
-    <title>SoundMax — Premium Soundboard</title>
+    <title>SoundMax</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -17,15 +17,24 @@
             <div class="sidebar-header">
                 <div class="logo">
                     <div class="logo-icon">
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                        <svg width="32" height="32" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="border-radius:6px;display:block">
+                          <defs>
+                            <linearGradient id="lgBg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0d0d1a"/><stop offset="100%" stop-color="#1a0a2e"/></linearGradient>
+                            <linearGradient id="lgAcc" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#a855f7"/></linearGradient>
+                          </defs>
+                          <rect width="512" height="512" rx="96" fill="url(#lgBg)"/>
+                          <rect x="72" y="236" width="36" height="88" rx="18" fill="url(#lgAcc)" opacity="0.6"/>
+                          <rect x="122" y="196" width="36" height="168" rx="18" fill="url(#lgAcc)" opacity="0.75"/>
+                          <rect x="172" y="156" width="36" height="248" rx="18" fill="url(#lgAcc)"/>
+                          <rect x="222" y="128" width="36" height="304" rx="18" fill="url(#lgAcc)"/>
+                          <rect x="272" y="148" width="36" height="264" rx="18" fill="url(#lgAcc)"/>
+                          <rect x="322" y="188" width="36" height="184" rx="18" fill="url(#lgAcc)" opacity="0.8"/>
+                          <rect x="372" y="220" width="36" height="120" rx="18" fill="url(#lgAcc)" opacity="0.65"/>
+                          <rect x="422" y="248" width="36" height="64" rx="18" fill="url(#lgAcc)" opacity="0.5"/>
                         </svg>
                     </div>
                     <div class="logo-text">
                         <h1>SoundMax</h1>
-                        <span class="logo-subtitle">Premium Soundboard</span>
                     </div>
                 </div>
             </div>
@@ -67,15 +76,23 @@
                 <div id="loadingStatus" class="loading-status hidden"></div>
             </div>
 
-            <!-- Master Volume -->
+            <!-- Volume Áudios + Microfone -->
             <div class="sidebar-section">
                 <div class="section-label">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
-                    Volume Master
+                    Vol. Áudios
                 </div>
                 <div class="volume-control">
                     <input type="range" id="masterVolume" class="volume-slider" min="0" max="100" value="80">
                     <span id="masterVolumeLabel" class="volume-label">80%</span>
+                </div>
+                <div class="section-label" style="margin-top:10px">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+                    Vol. Microfone
+                </div>
+                <div class="volume-control">
+                    <input type="range" id="micVolume" class="volume-slider" min="0" max="200" value="100">
+                    <span id="micVolumeLabel" class="volume-label">100%</span>
                 </div>
             </div>
 
@@ -116,7 +133,19 @@
                     <button id="sidebarToggle" class="btn-icon" title="Toggle sidebar">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                     </button>
-                    <div class="search-container">
+                    <!-- Tab Navigation -->
+                    <nav class="tab-nav" role="tablist">
+                        <button id="tabSoundboard" class="tab-btn active" role="tab" aria-selected="true" data-tab="soundboard">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                            Soundboard
+                        </button>
+                        <button id="tabVoiceChanger" class="tab-btn" role="tab" aria-selected="false" data-tab="voice-changer">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                            Voice Changer
+                            <span class="tab-badge">NEW</span>
+                        </button>
+                    </nav>
+                    <div class="search-container" id="searchWrapper">
                         <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                         <input type="text" id="searchInput" class="search-input" placeholder="Buscar sons..." autocomplete="off">
                         <kbd class="search-kbd">Ctrl+K</kbd>
@@ -187,6 +216,139 @@
                 </div>
             </div>
 
+            <!-- ═══ VOICE CHANGER PANEL ═══ -->
+            <div id="voiceChangerPanel" class="vc-panel hidden">
+
+                <!-- Status Bar -->
+                <div class="vc-status-bar">
+                    <div class="vc-status-left">
+                        <div id="vcIndicator" class="vc-indicator off" title="Voice Changer inativo"></div>
+                        <span id="vcStatusText" class="vc-status-text">Inativo — clique em Iniciar</span>
+                    </div>
+                    <div class="vc-status-right">
+                        <label class="toggle-label" title="Monitorar sua voz processada no fone">
+                            <input type="checkbox" id="vcMonitor" class="toggle-input">
+                            <span class="toggle-switch"></span>
+                            Monitor
+                        </label>
+                        <button id="vcToggleBtn" class="btn-vc-toggle">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            Iniciar
+                        </button>
+                        <kbd class="search-kbd" style="margin-left:6px" title="Hotkey global">Ctrl+Shift+V</kbd>
+                    </div>
+                </div>
+
+                <!-- Waveform Visualizer -->
+                <div class="vc-visualizer-wrap">
+                    <canvas id="vcCanvas" class="vc-canvas" width="900" height="80"></canvas>
+                    <div id="vcVisualizerLabel" class="vc-visualizer-label">Aguardando microfone...</div>
+                </div>
+
+                <!-- Effect Grid -->
+                <div class="vc-section-title">Efeitos de Voz</div>
+                <div class="vc-effects-grid" id="vcEffectsGrid">
+
+                    <button class="vc-effect-card active" data-effect="none" id="vcEffect-none" title="Voz original sem efeito">
+                        <div class="vc-effect-icon">🎙️</div>
+                        <div class="vc-effect-name">Original</div>
+                        <div class="vc-effect-desc">Passthrough</div>
+                    </button>
+
+                    <button class="vc-effect-card" data-effect="robot" id="vcEffect-robot" title="Voz robótica via ring modulation">
+                        <div class="vc-effect-icon">🤖</div>
+                        <div class="vc-effect-name">Robô</div>
+                        <div class="vc-effect-desc">Ring Modulation</div>
+                    </button>
+
+                    <button class="vc-effect-card" data-effect="deep" id="vcEffect-deep" title="Voz grave profunda">
+                        <div class="vc-effect-icon">👾</div>
+                        <div class="vc-effect-name">Voz Grave</div>
+                        <div class="vc-effect-desc">Bass Boost + EQ</div>
+                    </button>
+
+                    <button class="vc-effect-card" data-effect="chipmunk" id="vcEffect-chipmunk" title="Voz aguda estilo esquilo">
+                        <div class="vc-effect-icon">🐿️</div>
+                        <div class="vc-effect-name">Chipmunk</div>
+                        <div class="vc-effect-desc">High Boost + EQ</div>
+                    </button>
+
+                    <button class="vc-effect-card" data-effect="radio" id="vcEffect-radio" title="Voz de rádio ou walkie-talkie">
+                        <div class="vc-effect-icon">📻</div>
+                        <div class="vc-effect-name">Rádio</div>
+                        <div class="vc-effect-desc">Bandpass + Crunch</div>
+                    </button>
+
+                    <button class="vc-effect-card" data-effect="reverb" id="vcEffect-reverb" title="Eco e reverberação">
+                        <div class="vc-effect-icon">👻</div>
+                        <div class="vc-effect-name">Reverb</div>
+                        <div class="vc-effect-desc">Echo + Delay</div>
+                    </button>
+
+                    <button class="vc-effect-card" data-effect="megaphone" id="vcEffect-megaphone" title="Voz de megafone/alto-falante">
+                        <div class="vc-effect-icon">📢</div>
+                        <div class="vc-effect-name">Megafone</div>
+                        <div class="vc-effect-desc">Distortion + EQ</div>
+                    </button>
+
+                    <button class="vc-effect-card" data-effect="custom" id="vcEffect-custom" title="Efeitos personalizados com sliders">
+                        <div class="vc-effect-icon">🎛️</div>
+                        <div class="vc-effect-name">Custom</div>
+                        <div class="vc-effect-desc">Controle total</div>
+                    </button>
+
+                </div>
+
+                <!-- Custom Effect Sliders (hidden unless custom is active) -->
+                <div id="vcCustomSliders" class="vc-custom-sliders hidden">
+                    <div class="vc-slider-row">
+                        <label class="vc-slider-label">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+                            Pitch
+                        </label>
+                        <input type="range" id="vcPitchSlider" class="vc-slider" min="-12" max="12" value="0" step="1">
+                        <span id="vcPitchVal" class="vc-slider-val">0 st</span>
+                    </div>
+                    <div class="vc-slider-row">
+                        <label class="vc-slider-label">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3z"/></svg>
+                            Reverb
+                        </label>
+                        <input type="range" id="vcReverbSlider" class="vc-slider" min="0" max="100" value="30">
+                        <span id="vcReverbVal" class="vc-slider-val">30%</span>
+                    </div>
+                    <div class="vc-slider-row">
+                        <label class="vc-slider-label">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                            Distorção
+                        </label>
+                        <input type="range" id="vcDistSlider" class="vc-slider" min="0" max="100" value="20">
+                        <span id="vcDistVal" class="vc-slider-val">20%</span>
+                    </div>
+                </div>
+
+                <!-- Robot frequency slider (only for robot effect) -->
+                <div id="vcRobotSlider" class="vc-custom-sliders hidden">
+                    <div class="vc-slider-row">
+                        <label class="vc-slider-label">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                            Freq. Modulação
+                        </label>
+                        <input type="range" id="vcRingFreqSlider" class="vc-slider" min="10" max="200" value="40">
+                        <span id="vcRingFreqVal" class="vc-slider-val">40 Hz</span>
+                    </div>
+                </div>
+
+                <!-- Info footer -->
+                <div class="vc-footer">
+                    <div class="vc-footer-info">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        O áudio processado é enviado para a saída selecionada no painel. Configure o Discord para usar <strong>CABLE Output</strong> como microfone.
+                    </div>
+                </div>
+
+            </div>
+
             <!-- Now Playing Bar -->
             <div id="nowPlaying" class="now-playing hidden">
                 <div class="now-playing-info">
@@ -248,9 +410,9 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="soundHotkey">Hotkey</label>
+                    <label for="soundHotkey">Hotkey (Soundpad)</label>
                     <input type="text" id="soundHotkey" class="form-input hotkey-input" placeholder="Pressione uma tecla..." readonly>
-                    <div class="form-hint">Clique e pressione a tecla desejada</div>
+                    <div class="form-hint">Suporta F1–F12, Numpad, letras e números · Duplo clique para limpar</div>
                 </div>
                 <div class="form-group form-row">
                     <label class="toggle-label">
@@ -368,6 +530,7 @@
     <!-- Toast Container -->
     <div id="toastContainer" class="toast-container"></div>
 
+    <script src="voice-changer.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
